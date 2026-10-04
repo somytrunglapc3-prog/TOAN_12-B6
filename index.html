@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BÀI 6: VECTƠ TRONG KHÔNG GIAN</title>
+    
+    <script>
+        window.MathJax = { 
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
+            svg: { fontCache: 'global' },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+ 
+    <style>
+        :root {
+            --primary: #0056b3; --secondary: #eef2f5; --text: #333;
+            --correct: #d4edda; --correct-border: #c3e6cb;
+           --incorrect: #f8d7da; --incorrect-border: #f5c6cb;
+           --graph-blue: #0056b3; --graph-red: #dc3545; --font-size: 14pt;
+           --illu-size: 220px; 
+        }
+        * { box-sizing: border-box; } 
+        body { font-family: 'Segoe UI', sans-serif; font-size: var(--font-size); line-height: 1.6; color: var(--text); max-width: 950px; margin: 0 auto; padding: 10px 20px; background-color: #f4f7f6; transition: max-width 0.3s ease, font-size 0.2s ease; overflow-x: hidden; }
+        h1, h2, h3, h4 { color: var(--primary); margin-top: 0; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; width: 100%;}
+        .theory-box { border-left: 5px solid var(--primary); }
+       .theory-section { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 15px;}
+       .theory-section:last-child { border-bottom: none; }
+       .theory-content { flex: 1 1 60%; min-width: 250px; padding-right: 15px; }
+        .theory-illu { flex: 0 0 var(--illu-size); width: var(--illu-size); text-align: center; background: #fafbfc; border-radius: 8px; padding: 10px; border: 1px solid #e2e2e2; transition: all 0.3s ease; position: relative; }
+        .theory-illu canvas { width: 100%; aspect-ratio: 1/1; cursor: grab; touch-action: none; border-radius: 6px; }
+        .theory-illu canvas:active { cursor: grabbing; }
+        .hint-3d { position: absolute; bottom: 35px; left: 0; width: 100%; text-align: center; font-size: 0.85em; color: var(--primary); font-weight: bold; pointer-events: none; animation: pulse 2s infinite; background: rgba(255,255,255,0.7); padding: 2px 0;}
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        .theory-illu span { display: block; font-size: 0.9em; color: #666; font-style: italic; margin-top: 5px; }
+        .control-panel { background: var(--secondary); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 6px 10px rgba(0,0,0,0.15); border: 2px solid var(--primary); padding: 8px 10px !important; font-size: 0.85em; }
+        .control-panel label { font-weight: bold; white-space: nowrap; }
+        .control-panel input { width: 45px; padding: 3px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: inherit;}
+        .control-panel button { padding: 5px 10px; font-size: inherit; } 
+        button { background-color: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.3s; font-size: inherit; }
+        button:hover { background-color: #004494; transform: translateY(-1px); }
+       button.submit-btn { background-color: #28a745; font-size: 1.1em; padding: 12px 25px; margin-top: 15px; width: 100%;}
+       button.submit-btn:hover { background-color: #218838; }
+        .font-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; margin-right: 5px; border-right: 2px solid #ccc; padding-right: 10px; }
+       button.font-btn { background-color: #6c757d; padding: 4px 8px; }
+       button.font-btn:hover { background-color: #5a6268; }
+        .scroll-area { padding: 5px; }
+       .table-responsive { width: 100%; overflow-x: auto; margin: 10px 0; display: block; -webkit-overflow-scrolling: touch; }
+        .question { margin-top: 15px; padding: 15px; border: 1px solid #e2e2e2; border-radius: 8px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
+        .options { list-style-type: none; padding-left: 0; margin-top: 10px; }
+        .options li { padding: 8px; margin-bottom: 5px; border-radius: 4px; border: 1px solid transparent; transition: 0.2s;}
+        .options label { cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%;}
+       input[type="radio"] { width: 1.5em; height: 1.5em; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+        .tf-table { width: 100%; border-collapse: collapse; min-width: 500px; text-align: center; }
+        .tf-table th, .tf-table td { border: 1px solid #ddd; padding: 10px; vertical-align: middle; }
+        .tf-table td:first-child { text-align: left; }
+       .short-ans-input { padding: 6px; width: 120px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; font-size: inherit;}
+        .is-correct { background-color: var(--correct) !important; border-color: var(--correct-border) !important; }
+        .is-incorrect { background-color: var(--incorrect) !important; border-color: var(--incorrect-border) !important; }
+        .feedback { font-weight: bold; margin-left: 10px; font-size: 0.9em; }
+        .feedback.text-correct { color: #155724; }
+       .feedback.text-incorrect { color: #721c24; }
+        .advice-box { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.1em; display: none; }
+        @media (max-width: 900px) {
+           .control-panel { flex-direction: row; gap: 6px; padding: 6px !important; }
+           .font-controls { border-right: none; border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 2px; width: 100%; justify-content: center; margin-right: 0;}
+            .box { padding: 10px; }
+            body { padding: 2px; }
+           .theory-illu { flex: 1 1 100%; max-width: var(--illu-size); margin: 15px auto 0 auto; }
+           .theory-content { padding-right: 0; min-width: 100%; }
+            .tf-table { min-width: 100%; font-size: 0.9em; } 
+            .question { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 10px; } 
+        }
+    </style>
+</head>
+<body>
+ 
+    <div class="box control-panel">
+        <div class="font-controls">
+            <button class="font-btn" onclick="toggleFullScreen()" title="Bật/Tắt chế độ Toàn Màn Hình (F11)">📺 Toàn màn hình</button>
+            <button class="font-btn" onclick="toggleWidth()" title="Phóng to/Thu nhỏ khung viền trang web">↔️ Đổi khung</button>
+            <span style="margin: 0 5px; color: #ccc;">|</span>
+           <label>Cỡ chữ:</label>
+            <button class="font-btn" onclick="changeFontSize(-2)">A-</button>
+            <span id="font-size-display" style="font-weight: bold; width: 40px; text-align: center;">14pt</span>
+            <button class="font-btn" onclick="changeFontSize(2)">A+</button>
+            <span style="margin: 0 5px; color: #ccc;">|</span>
+           <label>Cỡ hình:</label>
+            <button class="font-btn" onclick="changeIlluSize(-30)">-</button>
+            <span id="illu-size-display" style="font-weight: bold; width: 45px; text-align: center;">220px</span>
+            <button class="font-btn" onclick="changeIlluSize(30)">+</button>
+        </div>
+        <label>Dạng 1 (4 PA): <input type="number" id="numType1" value="5" min="0" max="15"></label>
+        <label>Dạng 2 (Đ/S): <input type="number" id="numType2" value="3" min="0" max="15"></label>
+        <label>Dạng 3 (Ngắn): <input type="number" id="numType3" value="2" min="0" max="15"></label>
+        <button onclick="generateTest()">TẠO ĐỀ NGẪU NHIÊN</button>
+    </div>
+ 
+    <div class="box theory-box">
+        <h1 style="margin-bottom: 5px;">BÀI 6: VECTƠ TRONG KHÔNG GIAN</h1>
+        <div style="text-align: right; font-style: italic; color: var(--primary); font-weight: bold; border-bottom: 1px dashed #ccc; padding-bottom: 15px; margin-bottom: 15px;">
+            Giáo viên: NGUYỄN VĂN SÔ
+        </div>
+ 
+        <!-- LÝ THUYẾT 1 -->
+        <div class="theory-section">
+            <div class="theory-content">
+                <h3>1. Khái niệm Vectơ trong không gian</h3>
+                <p>Vectơ trong không gian là một đoạn thẳng có hướng.</p>
+                <ul>
+                    <li>Độ dài của vectơ là khoảng cách giữa điểm đầu và điểm cuối của nó. Kí hiệu là $|\overrightarrow{AB}|$ hoặc $|\vec{a}|$.</li>
+                    <li>Hai vectơ <b>cùng phương</b> nếu chúng có giá song song hoặc trùng nhau. Nếu cùng phương thì chúng cùng hướng hoặc ngược hướng.</li>
+                    <li>Hai vectơ $\vec{a}$ và $\vec{b}$ được gọi là <b>bằng nhau</b> ($\vec{a} = \vec{b}$) nếu chúng có cùng độ dài và cùng hướng.</li>
+                    <li>Vectơ có điểm đầu và điểm cuối trùng nhau gọi là <b>vectơ-không</b> ($\vec{0}$).</li>
+                </ul>
+            </div>
+            <div class="theory-illu">
+                <canvas id="canvas1"></canvas>
+                <div class="hint-3d">👆 Chạm kéo để xoay 3D</div>
+                <span>Hệ tọa độ & Vectơ trong KG</span>
+            </div>
+        </div>
+
+        <!-- LÝ THUYẾT 2 -->
+        <div class="theory-section">
+            <div class="theory-content">
+                <h3>2. Tổng và hiệu của hai vectơ</h3>
+                <p>Phép cộng và trừ vectơ trong không gian tuân theo các quy tắc tương tự như trong mặt phẳng.</p>
+                <ul>
+                    <li><b>Quy tắc ba điểm:</b> Với ba điểm A, B, C bất kì, ta có $\overrightarrow{AB} + \overrightarrow{BC} = \overrightarrow{AC}$.</li>
+                    <li><b>Quy tắc hình bình hành:</b> Nếu ABCD là hình bình hành thì $\overrightarrow{AB} + \overrightarrow{AD} = \overrightarrow{AC}$.</li>
+                    <li><b>Quy tắc hình hộp:</b> Cho hình hộp $ABCD.A'B'C'D'$, ta luôn có: $\overrightarrow{AB} + \overrightarrow{AD} + \overrightarrow{AA'} = \overrightarrow{AC'}$.</li>
+                    <li><b>Vectơ đối và hiệu:</b> Vectơ đối của $\vec{a}$ là $-\vec{a}$. Phép trừ: $\overrightarrow{OB} - \overrightarrow{OA} = \overrightarrow{AB}$.</li>
+                </ul>
+            </div>
+            <div class="theory-illu">
+                <canvas id="canvas2"></canvas>
+                <div class="hint-3d">👆 Chạm kéo để xoay 3D</div>
+                <span>Quy tắc hình hộp</span>
+            </div>
+        </div>
+
+        <!-- LÝ THUYẾT 3 -->
+        <div class="theory-section">
+            <div class="theory-content">
+                <h3>3. Nhân một số với vectơ & Tích vô hướng</h3>
+                <ul>
+                    <li><b>Nhân một số với vectơ:</b> Vectơ $k\vec{a}$ cùng hướng với $\vec{a}$ nếu $k > 0$, ngược hướng nếu $k < 0$ và có độ dài $|k| \cdot |\vec{a}|$.</li>
+                    <li>Trọng tâm $G$ của tứ diện $ABCD$: $\overrightarrow{GA} + \overrightarrow{GB} + \overrightarrow{GC} + \overrightarrow{GD} = \vec{0}$.</li>
+                    <li><b>Góc giữa hai vectơ:</b> Đặt $\overrightarrow{OA} = \vec{a}, \overrightarrow{OB} = \vec{b}$. Góc $\widehat{AOB}$ là góc giữa $\vec{a}$ và $\vec{b}$ (từ $0^\circ$ đến $180^\circ$).</li>
+                    <li><b>Tích vô hướng:</b> $\vec{a} \cdot \vec{b} = |\vec{a}| \cdot |\vec{b}| \cdot \cos(\vec{a}, \vec{b})$.</li>
+                    <li>$\vec{a} \perp \vec{b} \Leftrightarrow \vec{a} \cdot \vec{b} = 0$.</li>
+                </ul>
+            </div>
+            <div class="theory-illu">
+                <canvas id="canvas3"></canvas>
+                <div class="hint-3d">👆 Chạm kéo để xoay 3D</div>
+                <span>Góc giữa hai vectơ</span>
+            </div>
+        </div>
+ 
+    </div>
+ 
+    <div id="output" class="box" style="display: none;">
+        <h2 style="text-align: center; margin-bottom: 15px;">ĐỀ KIỂM TRA ĐÁNH GIÁ NĂNG LỰC</h2>
+        <div class="scroll-area" id="test-content"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="submit-btn" onclick="checkAnswers()" id="submitBtn" style="display:none;">NỘP BÀI & CHẤM ĐIỂM</button>
+        </div>
+        <h3 id="score-display" style="text-align: center; color: #0056b3; margin-top: 15px;"></h3>
+        <div id="advice-display" class="advice-box"></div>
+    </div>
+ 
+    <script>
+        // --- HỆ THỐNG ĐIỀU KHIỂN GIAO DIỆN ---
+        let currentFontSize = 14; let currentIlluSize = 220; let isExpanded = false;
+        function changeFontSize(delta) { currentFontSize += delta; if (currentFontSize < 10) currentFontSize = 10; if (currentFontSize > 32) currentFontSize = 32; document.documentElement.style.setProperty('--font-size', currentFontSize + 'pt'); document.getElementById('font-size-display').innerText = currentFontSize + 'pt'; }
+        function changeIlluSize(delta) { currentIlluSize += delta; if (currentIlluSize < 120) currentIlluSize = 600; document.documentElement.style.setProperty('--illu-size', currentIlluSize + 'px'); document.getElementById('illu-size-display').innerText = currentIlluSize + 'px'; }
+        function toggleWidth() { isExpanded = !isExpanded; document.body.style.maxWidth = isExpanded ? '100%' : '950px'; }
+        function toggleFullScreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err => { alert(err.message); }); } else { if (document.exitFullscreen) { document.exitFullscreen(); } } }
+        
+        let questionCounter = 1;
+        function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+ 
+        // ================= ENGINE VẼ 3D TRỰC TIẾP TRÊN CANVAS =================
+        class Canvas3D {
+            constructor(canvasId, drawFunc) {
+                this.canvas = document.getElementById(canvasId);
+                // Khởi tạo buffer cực nét (800x800 px) để thu nhỏ bằng CSS
+                this.canvas.width = 800; 
+                this.canvas.height = 800;
+                
+                this.ctx = this.canvas.getContext('2d');
+                // Chuyển hệ toạ độ về 400x400 để vẽ cho dễ
+                this.scaleFactor = 2; 
+                this.ctx.scale(this.scaleFactor, this.scaleFactor);
+                
+                // Góc mặc định nhìn đẹp
+                this.rx = Math.PI / 6; // Góc ngẩng (elevation)
+                this.ry = -Math.PI / 4; // Góc phương vị (azimuth)
+                
+                this.drawFunc = drawFunc;
+                this.isDragging = false;
+                this.lastX = 0;
+                this.lastY = 0;
+                
+                let startDrag = (e) => {
+                    this.isDragging = true;
+                    this.canvas.style.cursor = 'grabbing';
+                    this.lastX = e.touches ? e.touches[0].clientX : e.clientX;
+                    this.lastY = e.touches ? e.touches[0].clientY : e.clientY;
+                };
+                let drag = (e) => {
+                    if (!this.isDragging) return;
+                    e.preventDefault(); 
+                    let x = e.touches ? e.touches[0].clientX : e.clientX;
+                    let y = e.touches ? e.touches[0].clientY : e.clientY;
+                    let dx = x - this.lastX;
+                    let dy = y - this.lastY;
+                    this.ry += dx * 0.012;
+                    this.rx += dy * 0.012;
+                    
+                    // Khóa lật góc nhìn (Chuẩn quan sát Sư Phạm)
+                    if(this.rx > Math.PI/2 - 0.1) this.rx = Math.PI/2 - 0.1;
+                    if(this.rx < -Math.PI/2 + 0.1) this.rx = -Math.PI/2 + 0.1;
+                    
+                    this.lastX = x;
+                    this.lastY = y;
+                    this.render();
+                };
+                let stopDrag = () => { 
+                    this.isDragging = false; 
+                    this.canvas.style.cursor = 'grab';
+                };
+                
+                this.canvas.addEventListener('mousedown', startDrag);
+                window.addEventListener('mousemove', drag, {passive: false});
+                window.addEventListener('mouseup', stopDrag);
+                
+                this.canvas.addEventListener('touchstart', startDrag, {passive: false});
+                window.addEventListener('touchmove', drag, {passive: false});
+                window.addEventListener('touchend', stopDrag);
+                
+                this.render();
+            }
+            
+            // Hàm chiếu 3D -> 2D (Chuẩn toạn độ toán học: Z hướng lên, Y đâm sâu)
+            project(x, y, z) {
+                // Xoay phương vị
+                let x1 = x * Math.cos(this.ry) - y * Math.sin(this.ry);
+                let y1 = x * Math.sin(this.ry) + y * Math.cos(this.ry);
+                // Xoay ngẩng
+                let z2 = y1 * Math.sin(this.rx) + z * Math.cos(this.rx);
+                // Chiều sâu (dùng cho thuật toán tìm mặt nét đứt)
+                let depth = -y1 * Math.cos(this.rx) + z * Math.sin(this.rx); 
+                
+                let scale = 1.8; 
+                let cx = 200; // Tâm Canvas logic 400x400
+                let cy = 200;
+                
+                return { 
+                    x: cx + x1 * scale, 
+                    y: cy - z2 * scale, // Trục Z hướng lên nên lấy dấu trừ
+                    z: depth 
+                };
+            }
+
+            render() {
+                this.ctx.clearRect(0, 0, 400, 400);
+                this.drawFunc(this);
+            }
+            
+            drawLine(p1, p2, color = '#000', width = 2, isDashed = false) {
+                let p1Proj = this.project(p1.x, p1.y, p1.z);
+                let p2Proj = this.project(p2.x, p2.y, p2.z);
+                this.ctx.beginPath();
+                this.ctx.moveTo(p1Proj.x, p1Proj.y);
+                this.ctx.lineTo(p2Proj.x, p2Proj.y);
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = width;
+                if(isDashed) this.ctx.setLineDash([5, 5]); // Chuẩn nét đứt
+                else this.ctx.setLineDash([]);
+                this.ctx.stroke();
+            }
+
+            drawArrow(p1, p2, color = '#000', width = 3, label = "", isDashed = false) {
+                let p1Proj = this.project(p1.x, p1.y, p1.z);
+                let p2Proj = this.project(p2.x, p2.y, p2.z);
+                
+                this.drawLine(p1, p2, color, width, isDashed);
+                
+                this.ctx.setLineDash([]); // Đầu mũi tên luôn liền nét
+                let angle = Math.atan2(p2Proj.y - p1Proj.y, p2Proj.x - p1Proj.x);
+                let headlen = 12;
+                this.ctx.beginPath();
+                this.ctx.moveTo(p2Proj.x, p2Proj.y);
+                this.ctx.lineTo(p2Proj.x - headlen * Math.cos(angle - Math.PI / 7), p2Proj.y - headlen * Math.sin(angle - Math.PI / 7));
+                this.ctx.lineTo(p2Proj.x - headlen * Math.cos(angle + Math.PI / 7), p2Proj.y - headlen * Math.sin(angle + Math.PI / 7));
+                this.ctx.closePath();
+                this.ctx.fillStyle = color;
+                this.ctx.fill();
+            }
+            
+            // Vẽ cung tròn đánh dấu góc
+            drawArc(pCenter, pA, pB, radius, color) {
+                let lenA = Math.sqrt(pA.x*pA.x + pA.y*pA.y + pA.z*pA.z);
+                let lenB = Math.sqrt(pB.x*pB.x + pB.y*pB.y + pB.z*pB.z);
+                let uA = {x: pA.x/lenA, y: pA.y/lenA, z: pA.z/lenA};
+                let uB = {x: pB.x/lenB, y: pB.y/lenB, z: pB.z/lenB};
+                
+                let prevP = null;
+                for(let i=0; i<=15; i++) {
+                    let t = i/15;
+                    let lx = uA.x*(1-t) + uB.x*t;
+                    let ly = uA.y*(1-t) + uB.y*t;
+                    let lz = uA.z*(1-t) + uB.z*t;
+                    let lenL = Math.sqrt(lx*lx + ly*ly + lz*lz);
+                    let px = pCenter.x + (lx/lenL)*radius;
+                    let py = pCenter.y + (ly/lenL)*radius;
+                    let pz = pCenter.z + (lz/lenL)*radius;
+                    let curP = {x: px, y: py, z: pz};
+                    if(prevP) {
+                        this.drawLine(prevP, curP, color, 1.5);
+                    }
+                    prevP = curP;
+                }
+            }
+        }
+        
+        // Căn lề chữ tự động tản ra ngoài để không đè lên hình
+        function drawOutwardLabel(text, p, color, scene, offset = 18) {
+            let pProj = scene.project(p.x, p.y, p.z);
+            let cx = 200, cy = 200; 
+            let dx = pProj.x - cx;
+            let dy = pProj.y - cy;
+            let len = Math.sqrt(dx*dx + dy*dy);
+            if(len === 0) len = 1;
+            scene.ctx.font = "bold 16px Arial";
+            scene.ctx.fillStyle = color;
+            scene.ctx.textAlign = "center";
+            scene.ctx.textBaseline = "middle";
+            scene.ctx.fillText(text, pProj.x + (dx/len)*offset, pProj.y + (dy/len)*offset);
+        }
+
+        // Khởi tạo các Scene 3D
+        window.addEventListener('load', () => {
+            // HÌNH 1: HỆ TỌA ĐỘ VÀ VECTƠ
+            new Canvas3D('canvas1', (scene) => {
+                let O = {x:0, y:0, z:0};
+                let X = {x:80, y:0, z:0};
+                let Y = {x:0, y:80, z:0};
+                let Z = {x:0, y:0, z:80};
+                
+                scene.drawArrow(O, X, '#aaa', 2);
+                scene.drawArrow(O, Y, '#aaa', 2);
+                scene.drawArrow(O, Z, '#aaa', 2);
+                drawOutwardLabel('x', X, '#aaa', scene, 15);
+                drawOutwardLabel('y', Y, '#aaa', scene, 15);
+                drawOutwardLabel('z', Z, '#aaa', scene, 15);
+                
+                let A = {x: 20, y: -20, z: 10};
+                let B = {x: 60, y: 50, z: 60};
+                scene.drawArrow(A, B, '#0056b3', 4, '', false);
+                
+                // Tia chiếu vuông góc
+                scene.drawLine(A, {x:A.x, y:A.y, z:0}, '#999', 1, true);
+                scene.drawLine(B, {x:B.x, y:B.y, z:0}, '#999', 1, true);
+                scene.drawLine({x:A.x, y:A.y, z:0}, {x:B.x, y:B.y, z:0}, '#999', 1, true);
+                
+                drawOutwardLabel('A', A, '#333', scene, 18);
+                drawOutwardLabel('B', B, '#333', scene, 18);
+                drawOutwardLabel('a', {x:(A.x+B.x)/2, y:(A.y+B.y)/2, z:(A.z+B.z)/2}, '#0056b3', scene, 25);
+            });
+
+            // HÌNH 2: QUY TẮC HÌNH HỘP VÀ LẬP TRÌNH NHẬN DIỆN MẶT KHUẤT
+            new Canvas3D('canvas2', (scene) => {
+                let a = 45;
+                // Định nghĩa 8 đỉnh khối hộp
+                let A = {x:-a, y:-a, z:-a}, B = {x:a, y:-a, z:-a}, C = {x:a, y:a, z:-a}, D = {x:-a, y:a, z:-a};
+                let A_ = {x:-a, y:-a, z:a}, B_ = {x:a, y:-a, z:a}, C_ = {x:a, y:a, z:a}, D_ = {x:-a, y:a, z:a};
+                
+                // Vector pháp tuyến 6 mặt để xác định tầm nhìn (Camera)
+                let normals = {
+                    top: {x:0, y:0, z:1}, bottom: {x:0, y:0, z:-1},
+                    right: {x:1, y:0, z:0}, left: {x:-1, y:0, z:0},
+                    back: {x:0, y:1, z:0}, front: {x:0, y:-1, z:0}
+                };
+                
+                let vis = {};
+                for(let key in normals) {
+                    let n = normals[key];
+                    // Tính Depth của pháp tuyến. Depth > 0 nghĩa là mặt hướng về phía Camera
+                    let Z_depth = -(n.x*Math.sin(scene.ry) + n.y*Math.cos(scene.ry))*Math.cos(scene.rx) + n.z*Math.sin(scene.rx);
+                    vis[key] = Z_depth > 0;
+                }
+
+                // Cấu trúc 12 cạnh của khối hộp và mặt phẳng bao quanh nó
+                let edges = [
+                    {p1: A, p2: B, f1: 'bottom', f2: 'front'}, {p1: B, p2: C, f1: 'bottom', f2: 'right'},
+                    {p1: C, p2: D, f1: 'bottom', f2: 'back'}, {p1: D, p2: A, f1: 'bottom', f2: 'left'},
+                    {p1: A_, p2: B_, f1: 'top', f2: 'front'}, {p1: B_, p2: C_, f1: 'top', f2: 'right'},
+                    {p1: C_, p2: D_, f1: 'top', f2: 'back'}, {p1: D_, p2: A_, f1: 'top', f2: 'left'},
+                    {p1: A, p2: A_, f1: 'front', f2: 'left'}, {p1: B, p2: B_, f1: 'front', f2: 'right'},
+                    {p1: C, p2: C_, f1: 'back', f2: 'right'}, {p1: D, p2: D_, f1: 'back', f2: 'left'}
+                ];
+
+                // Vẽ khung xương (ẩn/hiện tự động)
+                edges.forEach(e => {
+                    let isHidden = !(vis[e.f1] || vis[e.f2]);
+                    scene.drawLine(e.p1, e.p2, '#777', 2, isHidden);
+                });
+                
+                // Vẽ các vectơ quy tắc hình hộp (Tự động biến thành đứt khi xoay)
+                let hideAB = !(vis['bottom'] || vis['front']);
+                let hideAD = !(vis['bottom'] || vis['left']);
+                let hideAA_ = !(vis['front'] || vis['left']);
+                
+                scene.drawArrow(A, B, '#dc3545', 4, '', hideAB);
+                scene.drawArrow(A, D, '#dc3545', 4, '', hideAD);
+                scene.drawArrow(A, A_, '#dc3545', 4, '', hideAA_);
+                
+                // Đường chéo AC' nằm trong lòng nên CHUẨN SƯ PHẠM luôn phải vẽ nét đứt
+                scene.drawArrow(A, C_, '#0056b3', 4, '', true); 
+                
+                drawOutwardLabel('A', A, '#000', scene);
+                drawOutwardLabel('B', B, '#000', scene);
+                drawOutwardLabel('C', C, '#000', scene);
+                drawOutwardLabel('D', D, '#000', scene);
+                drawOutwardLabel("A'", A_, '#000', scene);
+                drawOutwardLabel("B'", B_, '#000', scene);
+                drawOutwardLabel("C'", C_, '#0056b3', scene, 22);
+                drawOutwardLabel("D'", D_, '#000', scene);
+            });
+
+            // HÌNH 3: GÓC GIỮA HAI VECTƠ
+            new Canvas3D('canvas3', (scene) => {
+                let O = {x:0, y:0, z:0};
+                let A = {x: 60, y: -20, z: 40};
+                let B = {x: -20, y: 60, z: 60};
+                
+                // Vẽ lưới mặt phẳng OXY
+                for(let i=-60; i<=60; i+=30) {
+                    scene.drawLine({x:i, y:-60, z:0}, {x:i, y:60, z:0}, '#ddd', 1);
+                    scene.drawLine({x:-60, y:i, z:0}, {x:60, y:i, z:0}, '#ddd', 1);
+                }
+                
+                scene.drawArrow(O, A, '#0056b3', 4);
+                scene.drawArrow(O, B, '#dc3545', 4);
+                
+                scene.drawArc(O, A, B, 30, '#333');
+                
+                drawOutwardLabel('O', O, '#000', scene, 15);
+                drawOutwardLabel('A', A, '#0056b3', scene, 15);
+                drawOutwardLabel('B', B, '#dc3545', scene, 15);
+                drawOutwardLabel('a', {x: A.x*0.6, y: A.y*0.6, z: A.z*0.6}, '#0056b3', scene, 20);
+                drawOutwardLabel('b', {x: B.x*0.6, y: B.y*0.6, z: B.z*0.6}, '#dc3545', scene, 20);
+                drawOutwardLabel('α', {x: 20, y: 15, z: 35}, '#000', scene, 5);
+            });
+        });
+
+        // ================= SINH CÂU HỎI TRẮC NGHIỆM 4 ĐÁP ÁN (DẠNG 1) =================
+        function genT1_1() {
+            let opts = shuffle([
+                {t: `$\\overrightarrow{AC'}$`, v: true}, 
+                {t: `$\\overrightarrow{A'C}$`, v: false}, 
+                {t: `$\\overrightarrow{BD'}$`, v: false}, 
+                {t: `$\\overrightarrow{CA'}$`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Cho hình hộp $ABCD.A'B'C'D'$. Đẳng thức nào sau đây thể hiện đúng <b>Quy tắc hình hộp</b>? Tổng $\\overrightarrow{AB} + \\overrightarrow{AD} + \\overrightarrow{AA'}$ bằng:</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+
+        function genT1_2() {
+            let opts = shuffle([
+                {t: `$\\overrightarrow{AC} + \\overrightarrow{BD} = \\overrightarrow{AD} + \\overrightarrow{BC}$`, v: true}, 
+                {t: `$\\overrightarrow{AC} + \\overrightarrow{BD} = \\overrightarrow{AB} + \\overrightarrow{CD}$`, v: false}, 
+                {t: `$\\overrightarrow{AC} + \\overrightarrow{BD} = \\overrightarrow{0}$`, v: false}, 
+                {t: `$\\overrightarrow{AB} + \\overrightarrow{CD} = \\overrightarrow{AD} + \\overrightarrow{BC}$`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Cho tứ diện $ABCD$. Mệnh đề nào sau đây luôn <b>đúng</b>?</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+
+        function genT1_3() {
+            let opts = shuffle([
+                {t: `$\\sqrt{2}$`, v: true}, 
+                {t: `$2$`, v: false}, 
+                {t: `$1$`, v: false}, 
+                {t: `$\\sqrt{3}$`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Cho hình lập phương $ABCD.A'B'C'D'$ có độ dài mỗi cạnh bằng $1$. Tính độ dài của vectơ tổng $\\overrightarrow{BC} + \\overrightarrow{DD'}$.</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+
+        function genT1_4() {
+            let opts = shuffle([
+                {t: `$45^\\circ$`, v: true}, 
+                {t: `$90^\\circ$`, v: false}, 
+                {t: `$60^\\circ$`, v: false}, 
+                {t: `$30^\\circ$`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Cho hình lập phương $ABCD.A'B'C'D'$. Góc giữa hai vectơ $\\overrightarrow{AC}$ và $\\overrightarrow{A'D'}$ bằng:</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+
+        function genT1_5() {
+            let opts = shuffle([
+                {t: `$\\overrightarrow{GB} + \\overrightarrow{GC} + \\overrightarrow{GD} = \\overrightarrow{0}$`, v: true}, 
+                {t: `$\\overrightarrow{GB} + \\overrightarrow{GC} + \\overrightarrow{GD} = 3\\overrightarrow{GA}$`, v: false}, 
+                {t: `$\\overrightarrow{GB} + \\overrightarrow{GC} = \\overrightarrow{GD}$`, v: false}, 
+                {t: `$\\overrightarrow{GA} + \\overrightarrow{GB} + \\overrightarrow{GC} + \\overrightarrow{GD} = 4\\overrightarrow{AG}$`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Cho tứ diện $ABCD$, gọi $G$ là trọng tâm của tam giác $BCD$. Đẳng thức vectơ nào sau đây là <b>đúng</b>?</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+        
+        function genT1_6() {
+            let opts = shuffle([
+                {t: `Cùng phương, ngược hướng và có độ lớn bằng nhau`, v: true}, 
+                {t: `Cùng phương, cùng hướng và có độ lớn bằng nhau`, v: false}, 
+                {t: `Ngược phương, ngược hướng và độ lớn khác nhau`, v: false}, 
+                {t: `Cùng hướng nhưng độ lớn khác nhau`, v: false}
+            ]);
+            let html = `<div class="question type1-q"><div><b>Câu ${questionCounter++}:</b> Theo Định luật III Newton, lực tác dụng và phản lực là hai lực được biểu diễn bởi hai vectơ có tính chất nào sau đây?</div><ul class="options">`;
+            let labels = ['A', 'B', 'C', 'D'];
+            opts.forEach((opt, idx) => { html += `<li><label><input type="radio" name="q1_${questionCounter}" value="${opt.v}"> <b>${labels[idx]}.</b> ${opt.t}</label></li>`; });
+            return html + `</ul></div>`;
+        }
+
+        // ================= SINH CÂU HỎI TRẮC NGHIỆM ĐÚNG/SAI (DẠNG 2) =================
+        function genT2_1() {
+            let html = `<div class="question type2-q"><div><b>Câu ${questionCounter++}:</b> Xét tính đúng/sai của các mệnh đề sau về tính chất của vectơ trong không gian:</div>`;
+            html += `<div class="table-responsive"><table class="tf-table"><tbody>`;
+            let statements = [
+                { s: "Nếu $\\vec{a}$ và $\\vec{b}$ đều cùng hướng với $\\vec{c}$ (khác $\\vec{0}$) thì $\\vec{a}$ và $\\vec{b}$ cùng hướng.", v: "true" }, 
+                { s: "Nếu $\\vec{a}$ và $\\vec{b}$ đều ngược hướng với $\\vec{c}$ (khác $\\vec{0}$) thì $\\vec{a}$ và $\\vec{b}$ cùng hướng.", v: "true" },
+                { s: "Hai vectơ là đối nhau nếu và chỉ nếu tổng của chúng bằng $\\vec{0}$.", v: "true" }, 
+                { s: "Nếu $\\vec{a}$ và $\\vec{b}$ đều cùng hướng với $\\vec{c}$ thì $\\vec{a}$ và $\\vec{b}$ ngược hướng.", v: "false" }
+            ];
+            let labels = ['a', 'b', 'c', 'd'];
+            statements.forEach((stmt, i) => {
+                html += `<tr data-ans="${stmt.v}"><td><b>${labels[i]})</b> ${stmt.s}</td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="true"> Đúng</label></td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="false"> Sai</label></td>
+                <td style="width: 140px;"><span class="feedback"></span></td></tr>`;
+            });
+            return html + `</tbody></table></div></div>`;
+        }
+
+        function genT2_2() {
+            let html = `<div class="question type2-q"><div><b>Câu ${questionCounter++}:</b> Cho hình hộp $ABCD.A'B'C'D'$. Xét tính đúng/sai của các mệnh đề sau:</div>`;
+            html += `<div class="table-responsive"><table class="tf-table"><tbody>`;
+            let statements = [
+                { s: "$\\overrightarrow{AB} + \\overrightarrow{DD'} + \\overrightarrow{C'D'} = \\overrightarrow{CC'}$.", v: "true" },
+                { s: "$\\overrightarrow{AB} + \\overrightarrow{CD'} - \\overrightarrow{CC'} = \\overrightarrow{0}$.", v: "true" }, 
+                { s: "$\\overrightarrow{BC} - \\overrightarrow{CC'} + \\overrightarrow{DC} = \\overrightarrow{A'C}$.", v: "true" },
+                { s: "$\\overrightarrow{AB} + \\overrightarrow{AD} = \\overrightarrow{A'C'}$.", v: "false" }
+            ];
+            let labels = ['a', 'b', 'c', 'd'];
+            statements.forEach((stmt, i) => {
+                html += `<tr data-ans="${stmt.v}"><td><b>${labels[i]})</b> ${stmt.s}</td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="true"> Đúng</label></td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="false"> Sai</label></td>
+                <td style="width: 140px;"><span class="feedback"></span></td></tr>`;
+            });
+            return html + `</tbody></table></div></div>`;
+        }
+
+        function genT2_3() {
+            let html = `<div class="question type2-q"><div><b>Câu ${questionCounter++}:</b> Cho hình chóp tứ giác đều $S.ABCD$ có độ dài tất cả các cạnh bằng $a$. Các mệnh đề về tích vô hướng và góc sau đúng hay sai?</div>`;
+            html += `<div class="table-responsive"><table class="tf-table"><tbody>`;
+            let statements = [
+                { s: "$\\overrightarrow{AS} \\cdot \\overrightarrow{BC} = \\frac{a^2}{2}$.", v: "true" },
+                { s: "$\\overrightarrow{AS} \\cdot \\overrightarrow{AC} = a^2$.", v: "true" }, 
+                { s: "$\\overrightarrow{AC} \\cdot \\overrightarrow{BD} = 0$.", v: "true" }, 
+                { s: "Góc giữa $\\overrightarrow{AS}$ và $\\overrightarrow{BC}$ là $90^\\circ$.", v: "false" }
+            ];
+            let labels = ['a', 'b', 'c', 'd'];
+            statements.forEach((stmt, i) => {
+                html += `<tr data-ans="${stmt.v}"><td><b>${labels[i]})</b> ${stmt.s}</td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="true"> Đúng</label></td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="false"> Sai</label></td>
+                <td style="width: 140px;"><span class="feedback"></span></td></tr>`;
+            });
+            return html + `</tbody></table></div></div>`;
+        }
+
+        function genT2_4() {
+            let html = `<div class="question type2-q"><div><b>Câu ${questionCounter++}:</b> Cho hình lập phương $ABCD.A'B'C'D'$. Các mệnh đề sau đúng hay sai?</div>`;
+            html += `<div class="table-responsive"><table class="tf-table"><tbody>`;
+            let statements = [
+                { s: "$\\overrightarrow{A'C} \\cdot \\overrightarrow{B'D'} = 0$.", v: "true" },
+                { s: "Góc $(\\overrightarrow{AD}, \\overrightarrow{B'C'}) = 0^\\circ$.", v: "true" }, 
+                { s: "Công thức tích vô hướng $\\vec{a} \\cdot \\vec{b} = \vert{}\\vec{a}\vert{}\\cdot\vert{}\\vec{b}\vert{}\\cos(\\vec{a}, \\vec{b})$.", v: "true" },
+                { s: "Với mọi vectơ $\\vec{a}$, ta luôn có $\\vec{a}^2 = \vert{}\\vec{a}\vert{}$.", v: "false" }
+            ];
+            let labels = ['a', 'b', 'c', 'd'];
+            statements.forEach((stmt, i) => {
+                html += `<tr data-ans="${stmt.v}"><td><b>${labels[i]})</b> ${stmt.s}</td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="true"> Đúng</label></td>
+                <td style="width: 100px;"><label><input type="radio" name="q2_${questionCounter}_${i}" value="false"> Sai</label></td>
+                <td style="width: 140px;"><span class="feedback"></span></td></tr>`;
+            });
+            return html + `</tbody></table></div></div>`;
+        }
+
+        // ================= SINH CÂU HỎI TRẢ LỜI NGẮN (DẠNG 3) =================
+        function genT3_1() {
+            let a = Math.floor(Math.random() * 3) + 1;
+            let b = Math.floor(Math.random() * 3) + 2;
+            let c = Math.floor(Math.random() * 3) + 3;
+            let ans = a*a + b*b + c*c;
+            let html = `<div class="question type3-q">
+                <div><b>Câu ${questionCounter++}:</b> Cho hình hộp chữ nhật $ABCD.A'B'C'D'$ có $AB = ${a}$, $AD = ${b}$ và $AA' = ${c}$. Tính <b>bình phương</b> độ dài của vectơ $\\overrightarrow{BD'}$.</div>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label><b>Trả lời: </b></label>
+                    <input type="text" class="short-ans-input" data-ans="${ans}" placeholder="Nhập số...">
+                    <span class="feedback"></span>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function genT3_2() {
+            let html = `<div class="question type3-q">
+                <div><b>Câu ${questionCounter++}:</b> Cho tứ diện $ABCD$, gọi $G$ là trọng tâm của tam giác $BCD$. Cho biết $\\overrightarrow{AB} + \\overrightarrow{AC} + \\overrightarrow{AD} = k\\overrightarrow{AG}$. Hãy tìm giá trị của số thực $k$.</div>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label><b>Trả lời: </b></label>
+                    <input type="text" class="short-ans-input" data-ans="3" placeholder="Nhập số...">
+                    <span class="feedback"></span>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function genT3_3() {
+            let m = Math.floor(Math.random() * 4) + 2;
+            let n = Math.floor(Math.random() * 4) + 2;
+            let ans = m * n * 0.5;
+            let html = `<div class="question type3-q">
+                <div><b>Câu ${questionCounter++}:</b> Trong không gian, cho hai vectơ $\\vec{a}$ và $\\vec{b}$ có độ dài lần lượt là $|\\vec{a}| = ${m}$ và $|\\vec{b}| = ${n}$. Biết góc giữa hai vectơ đó là $60^\\circ$. Tính tích vô hướng $\\vec{a} \\cdot \\vec{b}$.</div>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label><b>Trả lời: </b></label>
+                    <input type="text" class="short-ans-input" data-ans="${ans}" placeholder="Nhập số...">
+                    <span class="feedback"></span>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function genT3_4() {
+            let html = `<div class="question type3-q">
+                <div><b>Câu ${questionCounter++}:</b> Cho tứ diện $ABCD$. Tính giá trị của biểu thức tích vô hướng $P = \\overrightarrow{AB} \\cdot \\overrightarrow{CD} + \\overrightarrow{AC} \\cdot \\overrightarrow{DB} + \\overrightarrow{AD} \\cdot \\overrightarrow{BC}$.</div>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label><b>Trả lời: </b></label>
+                    <input type="text" class="short-ans-input" data-ans="0" placeholder="Nhập số...">
+                    <span class="feedback"></span>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function genT3_5() {
+            let f = Math.floor(Math.random() * 50) + 20;
+            let d = Math.floor(Math.random() * 10) + 5;
+            let ans = f * d;
+            let html = `<div class="question type3-q">
+                <div><b>Câu ${questionCounter++}:</b> Một lực $\\vec{F}$ có độ lớn $${f}$ (N) tác động vào một vật tại điểm $M$, làm vật di chuyển một quãng đường $MN = ${d}$ (m) có hướng cùng với hướng của lực. Tính công $A$ (đơn vị Jun) sinh ra bởi lực $\\vec{F}$.</div>
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label><b>Trả lời: </b></label>
+                    <input type="text" class="short-ans-input" data-ans="${ans}" placeholder="Nhập số...">
+                    <span class="feedback"></span>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        // ================= ĐIỀU KHIỂN & CHẤM ĐIỂM =================
+        function generateTest() {
+            try {
+                let n1 = parseInt(document.getElementById('numType1').value);
+                let n2 = parseInt(document.getElementById('numType2').value);
+                let n3 = parseInt(document.getElementById('numType3').value);
+                let testContent = document.getElementById('test-content');
+                document.getElementById('output').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'inline-block';
+                document.getElementById('score-display').innerHTML = '';
+                document.getElementById('advice-display').style.display = 'none';
+                questionCounter = 1; let finalHtml = ""; 
+ 
+                if (n1 > 0) {
+                   finalHtml += "<h3>Phần I: Câu trắc nghiệm nhiều phương án lựa chọn</h3>";
+                   let t1_funcs = shuffle([genT1_1, genT1_2, genT1_3, genT1_4, genT1_5, genT1_6]);
+                   for (let i = 0; i < n1; i++) { finalHtml += t1_funcs[i % t1_funcs.length](); }
+                }
+                if (n2 > 0) {
+                   finalHtml += "<h3 style='margin-top:25px;'>Phần II: Câu trắc nghiệm đúng sai</h3>";
+                   let t2_funcs = shuffle([genT2_1, genT2_2, genT2_3, genT2_4]);
+                   for (let i = 0; i < n2; i++) { finalHtml += t2_funcs[i % t2_funcs.length](); }
+                }
+                if (n3 > 0) {
+                   finalHtml += "<h3 style='margin-top:25px;'>Phần III: Câu trắc nghiệm trả lời ngắn</h3>";
+                   let t3_funcs = shuffle([genT3_1, genT3_2, genT3_3, genT3_4, genT3_5]);
+                   for (let i = 0; i < n3; i++) { finalHtml += t3_funcs[i % t3_funcs.length](); }
+                }
+ 
+                testContent.innerHTML = finalHtml; 
+                
+                if (window.MathJax && MathJax.typesetPromise) {
+                   MathJax.typesetClear([testContent]);
+                   MathJax.typesetPromise([testContent]).catch(function (err) { console.error(err.message); });
+                }
+                document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+               console.error("Lỗi khi tạo đề:", error);
+               alert("Đã xảy ra lỗi kỹ thuật. Vui lòng nhấn Tạo Đề lại!");
+            }
+        }
+ 
+        // --- HÀM CHẤM ĐIỂM ---
+        function checkAnswers() {
+            let totalScore = 0; let maxScore = 0;
+            document.querySelectorAll('.type1-q').forEach(q => { maxScore++; let radios = q.querySelectorAll('input[type="radio"]'); let answered = false; radios.forEach(radio => { let li = radio.closest('li'); li.classList.remove('is-correct', 'is-incorrect'); li.style.border = "1px solid transparent"; if (radio.checked) { answered = true; if (radio.value === "true") { li.classList.add('is-correct'); totalScore++; } else { li.classList.add('is-incorrect'); } } if (radio.value === "true" && answered) li.style.border = "2px solid var(--correct-border)"; }); });
+            document.querySelectorAll('.type2-q tr[data-ans]').forEach(row => { maxScore++; let correctAns = row.getAttribute('data-ans'), radios = row.querySelectorAll('input[type="radio"]'), feedback = row.querySelector('.feedback'); row.classList.remove('is-correct', 'is-incorrect'); feedback.innerHTML = ""; let checkedVal = null; radios.forEach(r => { if (r.checked) checkedVal = r.value; }); if (checkedVal !== null) { if (checkedVal === correctAns) { row.classList.add('is-correct'); feedback.innerHTML = "✔ ĐÚNG"; feedback.className = "feedback text-correct"; totalScore++; } else { row.classList.add('is-incorrect'); feedback.innerHTML = `✘ SAI (Đ.Án: ${correctAns === "true" ? "Đúng" : "Sai"})`; feedback.className = "feedback text-incorrect"; } } });
+            document.querySelectorAll('.short-ans-input').forEach(input => { maxScore++; let correctAns = input.getAttribute('data-ans'), userAns = input.value.trim(), feedback = input.nextElementSibling; input.classList.remove('is-correct', 'is-incorrect'); if (userAns !== "") { if (userAns == correctAns) { input.classList.add('is-correct'); feedback.innerHTML = "✔ CHÍNH XÁC"; feedback.className = "feedback text-correct"; totalScore++; } else { input.classList.add('is-incorrect'); feedback.innerHTML = `✘ SAI (Đ.Án: ${correctAns})`; feedback.className = "feedback text-incorrect"; } } });
+            let percent = maxScore === 0 ? 0 : Math.round((totalScore/maxScore)*100);
+            let scoreDisplay = document.getElementById('score-display'); let adviceBox = document.getElementById('advice-display');
+            scoreDisplay.innerHTML = `Bạn đã đạt: ${totalScore} / ${maxScore} điểm (${percent}%)`; adviceBox.style.display = 'block';
+            if (percent < 50) { adviceBox.style.backgroundColor = '#f8d7da'; adviceBox.style.color = '#721c24'; adviceBox.innerHTML = "Kết quả chưa tốt. Hãy ôn tập lại kỹ phần lý thuyết nhé!"; } else if (percent < 80) { adviceBox.style.backgroundColor = '#fff3cd'; adviceBox.style.color = '#856404'; adviceBox.innerHTML = "Khá tốt! Chú ý cẩn thận hơn ở các câu tính toán."; } else { adviceBox.style.backgroundColor = '#d4edda'; adviceBox.style.color = '#155724'; adviceBox.innerHTML = "Xuất sắc! Năng lực Tư duy của bạn rất vững vàng!"; }
+            document.getElementById('score-display').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>
